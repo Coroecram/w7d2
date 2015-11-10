@@ -6,7 +6,12 @@ var TodoList = React.createClass({
 
   componentDidMount: function(){
     TodoStore.addChangeHandler(this.todosChanged);
+    StepStore.addChangeHandler(this.stepsChanges);
     TodoStore.fetch();
+    debugger;
+    // TodoStore.all().forEach(function(todo){
+    //   StepStore.fetch(todo.id);
+    // });
   },
 
   componentWillUnmount: function(){
@@ -46,6 +51,13 @@ var TodoListItem = React.createClass({
           <div>
             <div> {this.props.item.body} </div>
             <button onClick={this.handleDestroy}> Delete </button>
+            <ol>{ StepStore.all(this.props.item.id).map(function(step){
+              <div>
+                <li>step.description</li>
+                <button onClick={this.handleStepDestroy}> Delete Step</button>
+              </div>
+            })
+          } </ol>
           </div>
       );
     }
