@@ -10,11 +10,11 @@
     });
   };
 
-  TodoStore.addChangedHandler = function(callback) {
+  TodoStore.addChangeHandler = function(callback) {
     _callbacks.push(callback);
   };
 
-  TodoStore.removeChangedHandler = function(callback){
+  TodoStore.removeChangeHandler = function(callback){
     var notRemoved = _callbacks.filter(function(item){
       return item !== callback;
     });
@@ -52,16 +52,43 @@
 
   TodoStore.destroy = function(id){
     $.ajax({
-      url: '/api/todo/' + id,
+      url: '/api/todos/' + id,
       type: 'DELETE',
       dataType: 'json',
-      data: { id: id },
       success: function(data){
-        var idx = _todos.indexOf(data.id);
-        _todos.splice(idx, 1);
+        var idx = TodoStore.find(data.id);
+
+        if (idx !== -1){
+          _todos.splice(idx, 1);
+          TodoStore.changed();
+        }
+      }
+    });
+  };
+
+  TodoStore.toggleDone = function(id){
+    var todo = _todos[TodoStore.find(id)];
+
+    $.ajax({
+      url: '/api/todos/' + id,
+      type: 'PATCH',
+      dataType: 'json',
+      data: { todo: {done: !todo.done} },
+      success: function(data){
+        var idx = TodoStore.find(data.id);
+        todo.done = !todo.done;
         TodoStore.changed();
       }
     });
+  };
+
+  TodoStore.find = function(id){
+    for (var i = 0; i < _todos.length; i++){
+      if(_todos[i].id === id){
+        return i;
+      }
+    }
+    return -1;
   };
 
 
